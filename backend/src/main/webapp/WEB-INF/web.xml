@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+         https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+  <!-- CORS Filter — must be first -->
+  <filter>
+    <filter-name>CORSFilter</filter-name>
+    <filter-class>com.foodorder.filter.CORSFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>CORSFilter</filter-name>
+    <url-pattern>/api/*</url-pattern>
+  </filter-mapping>
+
+  <!-- Member 1 — Customer -->
+  <servlet>
+    <servlet-name>CustomerServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.CustomerServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CustomerServlet</servlet-name>
+    <url-pattern>/api/customer/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Member 2 — Menu -->
+  <servlet>
+    <servlet-name>MenuServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.MenuServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>MenuServlet</servlet-name>
+    <url-pattern>/api/menu/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Member 3 — Order -->
+  <servlet>
+    <servlet-name>OrderServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.OrderServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>OrderServlet</servlet-name>
+    <url-pattern>/api/order/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Member 4 — Payment -->
+  <servlet>
+    <servlet-name>PaymentServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.PaymentServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>PaymentServlet</servlet-name>
+    <url-pattern>/api/payment/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Member 5 — Tracking -->
+  <servlet>
+    <servlet-name>TrackingServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.TrackingServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>TrackingServlet</servlet-name>
+    <url-pattern>/api/tracking/*</url-pattern>
+  </servlet-mapping>
+
+  <!-- Member 6 — Delivery -->
+  <servlet>
+    <servlet-name>DeliveryServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.DeliveryServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>DeliveryServlet</servlet-name>
+    <url-pattern>/api/delivery/*</url-pattern>
+  </servlet-mapping>
+
+</web-app>
