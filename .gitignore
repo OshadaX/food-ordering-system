@@ -13,6 +13,8 @@ frontend/dist/
 .vscode/
 *.suo
 
-# env
+# env — never commit credentials
 db.properties
+**/db.properties
 .env
+**/.env
