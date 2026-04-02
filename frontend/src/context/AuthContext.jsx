@@ -3,8 +3,11 @@ import { createContext, useContext, useState } from 'react'
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-    const [user, setUser] = useState({ id: 1, name: 'Test User', role: 'admin' })
+    const testAdminUser = { id: 1, name: 'Test Admin', role: 'admin' }
+    const testCustomerUser = { id: 2, name: 'Test Customer', role: 'customer' }
 
+    // Change to testAdminUser if you want to test the admin pages
+    const [user, setUser] = useState(testCustomerUser)
     const login = (userData) => {
         setUser(userData)
         localStorage.setItem('user', JSON.stringify(userData))
