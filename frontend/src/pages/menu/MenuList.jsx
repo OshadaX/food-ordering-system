@@ -4,7 +4,7 @@ import { getAllItems, deleteItem, toggleAvailability } from '../../services/menu
 
 export default function MenuList() {
 
-    const [items, setItems]     = useState([]);
+    const [items, setItems] = useState([]);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
 

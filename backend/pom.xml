@@ -11,8 +11,8 @@
   <packaging>war</packaging>
 
   <properties>
-    <maven.compiler.source>17</maven.compiler.source>
-    <maven.compiler.target>17</maven.compiler.target>
+    <maven.compiler.source>20</maven.compiler.source>
+    <maven.compiler.target>20</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -57,7 +57,7 @@
       <plugin>
     <groupId>org.codehaus.cargo</groupId>
     <artifactId>cargo-maven3-plugin</artifactId>
-    <version>1.10.9</version>
+    <version>1.10.15</version>
     <configuration>
         <container>
             <containerId>tomcat10x</containerId>
