@@ -47,7 +47,7 @@ public class MenuItem {
     public String getDescription() {return description;}
     public double getPrice() {return price;}
     public String getImageUrl() {return imageUrl;}
-    public boolean getIsAvailable() {return isAvailable;}
+    public boolean isAvailable() {return isAvailable;}
     public String getCreatedAt() {return createdAt;}
 
     //setters
@@ -57,7 +57,7 @@ public class MenuItem {
     public void setDescription(String description) {this.description = description;}
     public void setPrice(double price) {this.price = price;}
     public void setImageUrl(String imageUrl) {this.imageUrl = imageUrl;}
-    public void setIsAvailable(boolean isAvailable) {this.isAvailable = isAvailable;}
+    public void setAvailable(boolean available) {this.isAvailable = available;}
     public void setCreatedAt(String createdAt) {this.createdAt = createdAt;}
 
     // toString — useful for debugging
