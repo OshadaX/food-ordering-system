@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { getItemById, addItem, updateItem } from '../../services/menuService';
+import { getAllCategories } from '../../services/categoryService';
 
 export default function MenuForm() {
     const { id } = useParams();
@@ -19,12 +20,22 @@ export default function MenuForm() {
     
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [categories, setCategories] = useState([]);
 
     useEffect(() => {
+        fetchCategoriesList();
         if (isEditMode) {
             fetchItemDetails();
         }
     }, [id]);
+
+    const fetchCategoriesList = async () => {
+        const data = await getAllCategories();
+        setCategories(data);
+        if (data.length > 0 && !isEditMode) {
+            setFormData(prev => ({ ...prev, categoryId: data[0].id }));
+        }
+    };
 
     const fetchItemDetails = async () => {
         setLoading(true);
@@ -77,7 +88,7 @@ export default function MenuForm() {
             payload.id = parseInt(id, 10);
             const result = await updateItem(payload);
             if (result.status === 'success') {
-                navigate('/menu');
+                navigate('/admin/menu');
             } else {
                 setError(result.message || 'Failed to update item.');
                 setLoading(false);
@@ -85,7 +96,7 @@ export default function MenuForm() {
         } else {
             const result = await addItem(payload);
             if (result.status === 'success') {
-                navigate('/menu');
+                navigate('/admin/menu');
             } else {
                 setError(result.message || 'Failed to add item.');
                 setLoading(false);
@@ -159,16 +170,21 @@ export default function MenuForm() {
                                         />
                                     </div>
                                     <div className="col-md-6">
-                                        <label htmlFor="categoryId" className="form-label">Category ID *</label>
-                                        <input 
-                                            type="number" 
-                                            className="form-control" 
+                                        <label htmlFor="categoryId" className="form-label">Category *</label>
+                                        <select 
+                                            className="form-select" 
                                             id="categoryId" 
                                             name="categoryId"
                                             value={formData.categoryId} 
                                             onChange={handleChange} 
                                             required 
-                                        />
+                                        >
+                                            {categories.map(cat => (
+                                                <option key={cat.id} value={cat.id}>
+                                                    {cat.name}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
 
@@ -202,7 +218,7 @@ export default function MenuForm() {
                                     <button 
                                         type="button" 
                                         className="btn btn-outline-secondary"
-                                        onClick={() => navigate('/menu')}
+                                        onClick={() => navigate('/admin/menu')}
                                         disabled={loading}
                                     >
                                         Cancel

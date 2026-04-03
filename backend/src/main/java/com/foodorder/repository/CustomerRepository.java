@@ -25,19 +25,21 @@ public class CustomerRepository {
         c.setEmail     (rs.getString ("email"));
         c.setPassword  (rs.getString ("password"));
         c.setPhone     (rs.getString ("phone"));
+        c.setRole      (rs.getString ("role"));
         c.setCreatedAt (rs.getString ("created_at"));
         return c;
     }
 
     // ── CREATE ───────────────────────────────────────────────────────
     public boolean save(Customer customer) throws SQLException {
-        String sql = "INSERT INTO customers (name, email, password, phone) " +
-                     "VALUES (?, ?, ?, ?)";
+        String sql = "INSERT INTO customers (name, email, password, phone, role) " +
+                     "VALUES (?, ?, ?, ?, ?)";
         PreparedStatement stmt = connection.prepareStatement(sql);
         stmt.setString(1, customer.getName());
         stmt.setString(2, customer.getEmail());
         stmt.setString(3, customer.getPassword());
         stmt.setString(4, customer.getPhone());
+        stmt.setString(5, customer.getRole() != null ? customer.getRole() : "customer");
         return stmt.executeUpdate() > 0;
     }
 

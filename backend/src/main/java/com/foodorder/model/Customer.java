@@ -7,6 +7,7 @@ public class Customer {
     private String email;
     private String password;
     private String phone;
+    private String role;
     private String createdAt;
 
     // empty constructor — used by repository when reading from DB
@@ -14,12 +15,13 @@ public class Customer {
 
     // full constructor — used when you have all data ready
     public Customer(int id, String name, String email,
-                    String password, String phone, String createdAt) {
+                    String password, String phone, String role, String createdAt) {
         this.id        = id;
         this.name      = name;
         this.email     = email;
         this.password  = password;
         this.phone     = phone;
+        this.role      = role;
         this.createdAt = createdAt;
     }
 
@@ -29,6 +31,7 @@ public class Customer {
     public String getEmail()     { return email; }
     public String getPassword()  { return password; }
     public String getPhone()     { return phone; }
+    public String getRole()      { return role; }
     public String getCreatedAt() { return createdAt; }
 
     // setters
@@ -37,6 +40,7 @@ public class Customer {
     public void setEmail(String email)      { this.email = email; }
     public void setPassword(String password){ this.password = password; }
     public void setPhone(String phone)      { this.phone = phone; }
+    public void setRole(String role)        { this.role = role; }
     public void setCreatedAt(String c)      { this.createdAt = c; }
 
     @Override

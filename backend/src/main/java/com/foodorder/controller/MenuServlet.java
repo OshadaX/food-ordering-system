@@ -2,6 +2,7 @@ package com.foodorder.controller;
 
 import com.foodorder.model.MenuItem;
 import com.foodorder.service.MenuService;
+import com.foodorder.util.JwtUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
@@ -22,6 +23,25 @@ public class MenuServlet extends HttpServlet {
     @Override
     public void init() throws ServletException {
         menuService = new MenuService();
+    }
+
+    // checks if the request is from an admin
+    private boolean isAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String authHeader = request.getHeader("Authorization");
+        String token = JwtUtil.extractToken(authHeader);
+
+        if (token == null || !com.foodorder.util.JwtUtil.validateToken(token)) {
+            sendResponse(response, 401, "error", "Unauthorized — please login");
+            return false;
+        }
+
+        String role = com.foodorder.util.JwtUtil.getCustomerRole(token);
+        if (!"admin".equals(role)) {
+            sendResponse(response, 403, "error", "Forbidden — admin access required");
+            return false;
+        }
+
+        return true;
     }
 
     // ── helpers ──────────────────────────────────────────────────────
@@ -108,6 +128,9 @@ public class MenuServlet extends HttpServlet {
 
     private void addItem(HttpServletRequest request,
                          HttpServletResponse response) throws IOException {
+        // only admin can add items
+        if (!isAdmin(request, response)) return;
+
         MenuItem item = new Gson().fromJson(readBody(request), MenuItem.class);
         String[] result = menuService.addItem(item);
         sendResponse(response, result[0].equals("success") ? 201 : 400, result[0], result[1]);
@@ -128,6 +151,9 @@ public class MenuServlet extends HttpServlet {
 
     private void updateItem(HttpServletRequest request,
                             HttpServletResponse response) throws IOException {
+        // only admin can update items
+        if (!isAdmin(request, response)) return;
+
         MenuItem item = new Gson().fromJson(readBody(request), MenuItem.class);
         String[] result = menuService.updateItem(item);
         sendResponse(response, result[0].equals("success") ? 200 : 400, result[0], result[1]);
@@ -135,6 +161,9 @@ public class MenuServlet extends HttpServlet {
 
     private void toggleAvailability(HttpServletRequest request,
                                     HttpServletResponse response) throws IOException {
+        // only admin can toggle availability
+        if (!isAdmin(request, response)) return;
+
         String idParam     = request.getParameter("id");
         String statusParam = request.getParameter("status");
         if (idParam == null || statusParam == null) {
@@ -159,6 +188,9 @@ public class MenuServlet extends HttpServlet {
 
     private void deleteItem(HttpServletRequest request,
                             HttpServletResponse response) throws IOException {
+        // only admin can delete items
+        if (!isAdmin(request, response)) return;
+
         String idParam = request.getParameter("id");
         if (idParam == null) { sendResponse(response, 400, "error", "Item ID is required"); return; }
         String[] result = menuService.deleteItem(Integer.parseInt(idParam));

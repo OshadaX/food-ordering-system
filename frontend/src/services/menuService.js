@@ -5,7 +5,7 @@ import api from './api';
 export const getAllItems = async () => {
     try {
         const response = await api.get('/menu/all');
-        return response.data;
+        return response.data.map(item => ({ ...item, available: item.isAvailable }));
     } catch (error) {
         console.error('Error fetching menu items:', error);
         return [];
@@ -16,7 +16,8 @@ export const getAllItems = async () => {
 export const getItemById = async (id) => {
     try {
         const response = await api.get(`/menu/item?id=${id}`);
-        return response.data;
+        const data = response.data;
+        return data ? { ...data, available: data.isAvailable } : null;
     } catch (error) {
         console.error('Error fetching menu item:', error);
         return null;
@@ -27,7 +28,7 @@ export const getItemById = async (id) => {
 export const getItemsByCategory = async (categoryId) => {
     try {
         const response = await api.get(`/menu/category?categoryId=${categoryId}`);
-        return response.data;
+        return response.data.map(item => ({ ...item, available: item.isAvailable }));
     } catch (error) {
         console.error('Error fetching items by category:', error);
         return [];

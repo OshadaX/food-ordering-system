@@ -6,7 +6,6 @@ import com.foodorder.util.JwtUtil;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.SQLException;
-import java.util.List;
 
 public class CustomerService {
 
@@ -65,7 +64,7 @@ public class CustomerService {
                 result[0] = "error"; result[1] = "Invalid email or password"; return result;
             }
             String token = JwtUtil.generateToken(
-                customer.getId(), customer.getName(), customer.getEmail());
+                customer.getId(), customer.getName(), customer.getEmail(), customer.getRole());
             result[0] = "success";
             result[1] = "Login successful";
             result[2] = token;

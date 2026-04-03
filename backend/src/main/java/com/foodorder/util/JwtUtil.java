@@ -14,12 +14,12 @@ public class JwtUtil {
     private static final long   EXPIRY = 24 * 60 * 60 * 1000;
     private static final Key    KEY    = Keys.hmacShaKeyFor(SECRET.getBytes());
 
-    public static String generateToken(int customerId, String name, String email) {
+    public static String generateToken(int customerId, String name, String email, String role) {
         return Jwts.builder()
                 .setSubject(String.valueOf(customerId))
                 .claim("name",  name)
                 .claim("email", email)
-                .claim("role",  "customer")
+                .claim("role",  role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRY))
                 .signWith(KEY, SignatureAlgorithm.HS256)
@@ -56,6 +56,10 @@ public class JwtUtil {
 
     public static String getCustomerEmail(String token) {
         return (String) getClaims(token).get("email");
+    }
+
+    public static String getCustomerRole(String token) {
+        return (String) getClaims(token).get("role");
     }
 
     public static String extractToken(String authHeader) {

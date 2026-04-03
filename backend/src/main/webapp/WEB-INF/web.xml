@@ -65,6 +65,16 @@
     <url-pattern>/api/tracking/*</url-pattern>
   </servlet-mapping>
 
+  <!-- Category -->
+  <servlet>
+    <servlet-name>CategoryServlet</servlet-name>
+    <servlet-class>com.foodorder.controller.CategoryServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>CategoryServlet</servlet-name>
+    <url-pattern>/api/category/*</url-pattern>
+  </servlet-mapping>
+
   <!-- Member 6 — Delivery -->
   <servlet>
     <servlet-name>DeliveryServlet</servlet-name>

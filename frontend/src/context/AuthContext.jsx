@@ -3,11 +3,18 @@ import { createContext, useContext, useState } from 'react'
 const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
-    const testAdminUser = { id: 1, name: 'Test Admin', role: 'admin' }
-    const testCustomerUser = { id: 2, name: 'Test Customer', role: 'customer' }
+    // Load from localStorage on first render
+    const getInitialUser = () => {
+        try {
+            const storedUser = localStorage.getItem('user')
+            return storedUser ? JSON.parse(storedUser) : null
+        } catch {
+            return null
+        }
+    }
 
-    // Change to testAdminUser if you want to test the admin pages
-    const [user, setUser] = useState(testCustomerUser)
+    const [user, setUser] = useState(getInitialUser)
+
     const login = (userData) => {
         setUser(userData)
         localStorage.setItem('user', JSON.stringify(userData))
@@ -19,12 +26,11 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('token')
     }
 
-    // check localStorage on first load
-    const storedUser = localStorage.getItem('user')
-    const initialUser = storedUser ? JSON.parse(storedUser) : null
+    const isAdmin = () => user?.role === 'admin'
+    const isCustomer = () => user?.role === 'customer'
 
     return (
-        <AuthContext.Provider value={{ user: user || initialUser, login, logout }}>
+        <AuthContext.Provider value={{ user, login, logout, isAdmin, isCustomer }}>
             {children}
         </AuthContext.Provider>
     )
