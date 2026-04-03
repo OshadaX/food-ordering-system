@@ -33,11 +33,37 @@
       <version>8.0.33</version>
     </dependency>
 
-    <!-- Gson — Java objects to JSON -->
+    <!-- Gson -->
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>2.10.1</version>
+    </dependency>
+
+    <!-- JWT -->
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-api</artifactId>
+      <version>0.11.5</version>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-impl</artifactId>
+      <version>0.11.5</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt-jackson</artifactId>
+      <version>0.11.5</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- BCrypt -->
+    <dependency>
+      <groupId>org.mindrot</groupId>
+      <artifactId>jbcrypt</artifactId>
+      <version>0.4</version>
     </dependency>
 
   </dependencies>
@@ -46,34 +72,32 @@
     <finalName>food-ordering</finalName>
     <plugins>
 
-      <!-- War plugin -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-war-plugin</artifactId>
         <version>3.3.2</version>
       </plugin>
 
-      <!-- Tomcat plugin — run with: mvn tomcat7:run -->
       <plugin>
-    <groupId>org.codehaus.cargo</groupId>
-    <artifactId>cargo-maven3-plugin</artifactId>
-    <version>1.10.15</version>
-    <configuration>
-        <container>
+        <groupId>org.codehaus.cargo</groupId>
+        <artifactId>cargo-maven3-plugin</artifactId>
+        <version>1.10.15</version>
+        <configuration>
+          <container>
             <containerId>tomcat10x</containerId>
             <artifactInstaller>
-                <groupId>org.apache.tomcat</groupId>
-                <artifactId>tomcat</artifactId>
-                <version>10.1.18</version>
+              <groupId>org.apache.tomcat</groupId>
+              <artifactId>tomcat</artifactId>
+              <version>10.1.18</version>
             </artifactInstaller>
-        </container>
-        <configuration>
+          </container>
+          <configuration>
             <properties>
-                <cargo.servlet.port>8080</cargo.servlet.port>
+              <cargo.servlet.port>8080</cargo.servlet.port>
             </properties>
+          </configuration>
         </configuration>
-    </configuration>
-</plugin>
+      </plugin>
 
     </plugins>
   </build>
