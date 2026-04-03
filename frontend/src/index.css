@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.glass-nav {
+    background: rgba(42, 42, 42, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.asymmetric-clip {
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+}

@@ -1,4 +1,4 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 
@@ -6,6 +6,7 @@ export default function Navbar() {
     const { user, logout } = useAuth()
     const { cartCount } = useCart()
     const navigate = useNavigate()
+    const location = useLocation()
 
     const isAdmin = user?.role === 'admin'
     const isCustomer = user?.role === 'customer'
@@ -15,225 +16,98 @@ export default function Navbar() {
         navigate('/menu')
     }
 
+    const isActive = (path) => location.pathname === path
+
     return (
-        <nav style={styles.nav}>
-            {/* Brand */}
-            <Link to="/menu" style={styles.brand}>
-                <span style={styles.brandIcon}>🍔</span>
-                FoodOrder
-            </Link>
+        <nav className="fixed top-0 w-full z-50 glass-nav shadow-[0_40px_60px_rgba(229,226,221,0.06)]">
+            <div className="flex justify-between items-center px-8 py-4 w-full max-w-none font-['Inter'] tracking-tight antialiased">
+                {/* Brand Logo */}
+                <Link to="/menu" className="text-2xl font-black text-[#e5e2e1] tracking-tighter hover:scale-105 transition-transform flex items-center gap-2">
+                    <span className="text-[#FF8C00]">🔥</span> FoodOrder 
+                </Link>
 
-            {/* Nav Links */}
-            <div style={styles.links}>
-                {/* Always visible */}
-                <Link to="/menu" style={styles.link}>Menu</Link>
-
-                {/* Customer-only links */}
-                {isCustomer && (
-                    <>
-                        <Link to="/tracking" style={styles.link}>Track Order</Link>
-                        <Link to="/payment/history" style={styles.link}>My Orders</Link>
-                    </>
-                )}
-
-                {/* Admin-only links */}
-                {isAdmin && (
-                    <>
-                        <Link to="/admin/menu" style={styles.adminLink}>Admin Menu</Link>
-                        <Link to="/admin/categories" style={styles.adminLink}>Categories</Link>
-                        <Link to="/delivery" style={styles.link}>Delivery</Link>
-                    </>
-                )}
-            </div>
-
-            {/* Right side */}
-            <div style={styles.rightSide}>
-                {/* Cart — customer only */}
-                {isCustomer && (
-                    <Link to="/cart" style={styles.cartBtn}>
-                        🛒
-                        {cartCount > 0 && (
-                            <span style={styles.cartBadge}>{cartCount}</span>
-                        )}
+                {/* Navigation Links */}
+                <div className="hidden md:flex items-center space-x-8">
+                    <Link 
+                        to="/menu" 
+                        className={`${isActive('/menu') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                    >
+                        Menu
                     </Link>
-                )}
 
-                {user ? (
-                    <>
-                        {/* User badge */}
-                        <div style={styles.userBadge}>
-                            <span style={styles.userIcon}>
-                                {isAdmin ? '🛡️' : '👤'}
-                            </span>
-                            <span style={styles.userName}>{user.name}</span>
-                            {isAdmin && (
-                                <span style={styles.rolePill}>Admin</span>
-                            )}
-                        </div>
-
-                        {/* Profile link for customer */}
-                        {isCustomer && (
-                            <Link to="/profile" style={styles.iconBtn} title="Profile">
-                                ⚙️
+                    {/* Customer-only links */}
+                    {isCustomer && (
+                        <>
+                            <Link 
+                                to="/tracking" 
+                                className={`${isActive('/tracking') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                            >
+                                Track Order
                             </Link>
-                        )}
+                            <Link 
+                                to="/payment/history" 
+                                className={`${isActive('/payment/history') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                            >
+                                My Orders
+                            </Link>
+                        </>
+                    )}
 
-                        {/* Logout */}
-                        <button style={styles.logoutBtn} onClick={handleLogout}>
-                            Logout
-                        </button>
-                    </>
-                ) : (
-                    /* Guest: show login/register */
-                    <>
-                        <Link to="/login" style={styles.loginBtn}>Sign In</Link>
-                        <Link to="/register" style={styles.registerBtn}>Register</Link>
-                    </>
-                )}
+                    {/* Admin-only links */}
+                    {isAdmin && (
+                        <>
+                            <Link to="/admin/menu" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Admin Menu</Link>
+                            <Link to="/admin/categories" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Categories</Link>
+                            <Link to="/delivery" className="text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d] transition-all">Delivery</Link>
+                        </>
+                    )}
+                </div>
+
+                {/* Trailing Actions */}
+                <div className="flex items-center space-x-6">
+                    {/* Cart */}
+                    {isCustomer && (
+                        <Link to="/cart" className="relative cursor-pointer active:scale-95 transition-transform group">
+                            <span className="material-symbols-outlined text-[#e5e2e1] text-2xl group-hover:text-primary transition-colors">shopping_cart</span>
+                            {cartCount > 0 && (
+                                <span className="absolute -top-2 -right-2 bg-error text-on-error text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                                    {cartCount}
+                                </span>
+                            )}
+                        </Link>
+                    )}
+
+                    {user ? (
+                        <>
+                            <div className="hidden sm:flex items-center space-x-3 border-l border-outline-variant/30 pl-6">
+                                <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                    {isAdmin ? '🛡️' : 'A'}
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-on-surface font-medium text-sm leading-tight">{user.name}</span>
+                                    {isAdmin && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Admin</span>}
+                                </div>
+                            </div>
+
+                            {/* Profile (Customer) */}
+                            {isCustomer && (
+                                <Link to="/profile" className="text-on-surface opacity-70 hover:opacity-100 hover:text-primary transition-colors">
+                                    <span className="material-symbols-outlined">settings</span>
+                                </Link>
+                            )}
+
+                            <button onClick={handleLogout} className="px-4 py-1.5 border border-[#FF8C00] text-[#FF8C00] rounded-xl text-sm font-bold hover:bg-[#FF8C00] hover:text-[#131313] transition-all active:scale-95">
+                                Logout
+                            </button>
+                        </>
+                    ) : (
+                        <div className="flex space-x-3">
+                            <Link to="/login" className="px-4 py-1.5 border border-white/20 text-white rounded-xl text-sm font-medium hover:bg-white/10 transition-all">Sign In</Link>
+                            <Link to="/register" className="px-5 py-1.5 bg-gradient-to-tr from-[#ffb77d] to-[#FF8C00] text-[#131313] rounded-xl text-sm font-bold hover:shadow-lg shadow-primary/20 transition-all">Register</Link>
+                        </div>
+                    )}
+                </div>
             </div>
         </nav>
     )
-}
-
-const styles = {
-    nav: {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '0 28px',
-        height: '64px',
-        background: 'rgba(15, 23, 42, 0.95)',
-        backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-        fontFamily: "'Inter', sans-serif",
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        gap: '16px',
-    },
-    brand: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '8px',
-        color: '#f97316',
-        fontSize: '20px',
-        fontWeight: '800',
-        textDecoration: 'none',
-        flexShrink: 0,
-    },
-    brandIcon: {
-        fontSize: '22px',
-    },
-    links: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '4px',
-        flex: 1,
-        paddingLeft: '24px',
-    },
-    link: {
-        color: 'rgba(255,255,255,0.65)',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '500',
-        padding: '6px 12px',
-        borderRadius: '8px',
-        transition: 'color 0.2s, background 0.2s',
-    },
-    adminLink: {
-        color: '#f97316',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '600',
-        padding: '6px 12px',
-        borderRadius: '8px',
-        background: 'rgba(249,115,22,0.12)',
-        border: '1px solid rgba(249,115,22,0.2)',
-    },
-    rightSide: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '12px',
-        flexShrink: 0,
-    },
-    cartBtn: {
-        position: 'relative',
-        color: 'rgba(255,255,255,0.8)',
-        textDecoration: 'none',
-        fontSize: '20px',
-        display: 'flex',
-        alignItems: 'center',
-    },
-    cartBadge: {
-        position: 'absolute',
-        top: '-6px',
-        right: '-8px',
-        background: '#ef4444',
-        color: '#fff',
-        borderRadius: '50%',
-        width: '18px',
-        height: '18px',
-        fontSize: '10px',
-        fontWeight: '700',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    userBadge: {
-        display: 'flex',
-        alignItems: 'center',
-        gap: '6px',
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.1)',
-        borderRadius: '20px',
-        padding: '5px 12px',
-    },
-    userIcon: { fontSize: '14px' },
-    userName: {
-        color: 'rgba(255,255,255,0.85)',
-        fontSize: '13px',
-        fontWeight: '500',
-    },
-    rolePill: {
-        background: 'rgba(249,115,22,0.2)',
-        color: '#f97316',
-        borderRadius: '10px',
-        padding: '1px 8px',
-        fontSize: '11px',
-        fontWeight: '700',
-        marginLeft: '2px',
-    },
-    iconBtn: {
-        color: 'rgba(255,255,255,0.6)',
-        textDecoration: 'none',
-        fontSize: '18px',
-    },
-    logoutBtn: {
-        background: 'transparent',
-        border: '1px solid rgba(255,255,255,0.2)',
-        color: 'rgba(255,255,255,0.6)',
-        borderRadius: '8px',
-        padding: '6px 14px',
-        fontSize: '13px',
-        fontWeight: '500',
-        cursor: 'pointer',
-    },
-    loginBtn: {
-        color: 'rgba(255,255,255,0.7)',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '500',
-        padding: '6px 14px',
-        border: '1px solid rgba(255,255,255,0.15)',
-        borderRadius: '8px',
-    },
-    registerBtn: {
-        background: 'linear-gradient(135deg, #f97316, #ea580c)',
-        color: '#fff',
-        textDecoration: 'none',
-        fontSize: '14px',
-        fontWeight: '600',
-        padding: '7px 16px',
-        borderRadius: '8px',
-    },
 }
