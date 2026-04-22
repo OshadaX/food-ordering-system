@@ -1,8 +1,11 @@
 package com.foodorder.util;
 
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.Statement;
 import java.util.Properties;
 
 public class DBConnection {
@@ -23,6 +26,7 @@ public class DBConnection {
                     props.getProperty("db.username"),
                     props.getProperty("db.password")
             );
+            runSchemaScriptIfPresent();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("DB connection failed: " + e.getMessage());
@@ -39,6 +43,28 @@ public class DBConnection {
 
     public Connection getConnection() {
         return connection;
+    }
+
+    private void runSchemaScriptIfPresent() {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("schema.sql")) {
+            if (input == null) {
+                return;
+            }
+
+            String script = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            String[] statements = script.split(";\\s*(\\r?\\n|$)");
+            try (Statement statement = connection.createStatement()) {
+                for (String sql : statements) {
+                    String trimmed = sql.trim();
+                    if (trimmed.isEmpty()) {
+                        continue;
+                    }
+                    statement.execute(trimmed);
+                }
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize database schema: " + e.getMessage(), e);
+        }
     }
 
     private static boolean isConnectionClosed() {
