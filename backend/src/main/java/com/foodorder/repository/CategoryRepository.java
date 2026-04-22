@@ -9,10 +9,8 @@ import java.util.List;
 
 public class CategoryRepository {
 
-    private Connection connection;
-
     public CategoryRepository() {
-        this.connection = DBConnection.getInstance().getConnection();
+        // Connection is obtained fresh on every query — no stale-connection risk
     }
 
     private Category mapRow(ResultSet rs) throws SQLException {
@@ -25,23 +23,51 @@ public class CategoryRepository {
 
     public boolean save(Category category) throws SQLException {
         String sql = "INSERT INTO categories (name) VALUES (?)";
-        PreparedStatement stmt = connection.prepareStatement(sql);
-        stmt.setString(1, category.getName());
-        return stmt.executeUpdate() > 0;
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, category.getName());
+            return stmt.executeUpdate() > 0;
+        }
     }
 
     public List<Category> findAll() throws SQLException {
         List<Category> categories = new ArrayList<>();
-        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories ORDER BY name ASC");
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next()) categories.add(mapRow(rs));
+        String sql = "SELECT * FROM categories ORDER BY name ASC";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) categories.add(mapRow(rs));
+        }
         return categories;
     }
 
     public Category findById(int id) throws SQLException {
-        PreparedStatement stmt = connection.prepareStatement("SELECT * FROM categories WHERE id = ?");
-        stmt.setInt(1, id);
-        ResultSet rs = stmt.executeQuery();
-        return rs.next() ? mapRow(rs) : null;
+        String sql = "SELECT * FROM categories WHERE id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? mapRow(rs) : null;
+            }
+        }
+    }
+
+    public boolean update(Category category) throws SQLException {
+        String sql = "UPDATE categories SET name = ? WHERE id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, category.getName());
+            stmt.setInt(2, category.getId());
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
+    public boolean delete(int id) throws SQLException {
+        String sql = "DELETE FROM categories WHERE id = ?";
+        try (Connection conn = DBConnection.getInstance().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            return stmt.executeUpdate() > 0;
+        }
     }
 }

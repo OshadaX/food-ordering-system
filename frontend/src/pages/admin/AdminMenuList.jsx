@@ -57,15 +57,22 @@ export default function AdminMenuList() {
         }
     };
 
+    if (loading) return (
+        <div className="flex flex-col items-center justify-center p-20 text-gray-500">
+            <div className="w-10 h-10 border-4 border-gray-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+            <p className="text-sm">Loading menu items...</p>
+        </div>
+    );
+
     return (
-        <div style={styles.page}>
-            <div style={styles.header}>
+        <div className="max-w-7xl mx-auto pt-32 px-8 pb-32 bg-white min-h-screen">
+            <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-100">
                 <div>
-                    <h1 style={styles.pageTitle}>Menu Management</h1>
-                    <p style={styles.pageSubtitle}>Manage your restaurant's menu items</p>
+                    <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
+                    <p className="text-gray-500 mt-1">Manage your restaurant's menu items</p>
                 </div>
                 <button
-                    style={styles.addBtn}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition"
                     onClick={() => navigate('/admin/menu/add')}
                 >
                     + Add New Item
@@ -73,93 +80,82 @@ export default function AdminMenuList() {
             </div>
 
             {message && (
-                <div style={{
-                    ...styles.toast,
-                    background: messageType === 'success'
-                        ? 'rgba(34, 197, 94, 0.15)'
-                        : 'rgba(239, 68, 68, 0.15)',
-                    borderColor: messageType === 'success'
-                        ? 'rgba(34, 197, 94, 0.4)'
-                        : 'rgba(239, 68, 68, 0.4)',
-                    color: messageType === 'success' ? '#86efac' : '#fca5a5',
-                }}>
+                <div className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
+                    messageType === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
+                }`}>
                     {messageType === 'success' ? '✅' : '⚠️'} {message}
                 </div>
             )}
 
-            {loading && (
-                <div style={styles.center}>
-                    <div style={styles.spinner} />
-                    <p style={styles.loadingText}>Loading menu items...</p>
-                </div>
-            )}
-
             {!loading && items.length === 0 && (
-                <div style={styles.center}>
-                    <span style={{ fontSize: '48px' }}>🍽️</span>
-                    <p style={styles.emptyText}>No menu items yet. Add your first item!</p>
+                <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
+                    <span className="text-5xl mb-4 block">🍽️</span>
+                    <p className="text-gray-400">No menu items yet. Add your first item!</p>
                 </div>
             )}
 
             {!loading && items.length > 0 && (
-                <div style={styles.tableWrap}>
-                    <table style={styles.table}>
+                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <table className="w-full text-left border-collapse">
                         <thead>
-                            <tr style={styles.thead}>
-                                <th style={styles.th}>#</th>
-                                <th style={styles.th}>Name</th>
-                                <th style={styles.th}>Category</th>
-                                <th style={styles.th}>Description</th>
-                                <th style={styles.th}>Price</th>
-                                <th style={styles.th}>Status</th>
-                                <th style={styles.th}>Actions</th>
+                            <tr className="bg-gray-50 border-b border-gray-200">
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody className="divide-y divide-gray-100">
                             {items.map((item, index) => (
-                                <tr key={item.id} style={styles.tr}>
-                                    <td style={styles.td}>{index + 1}</td>
-                                    <td style={{ ...styles.td, fontWeight: '600', color: '#fff' }}>{item.name}</td>
-                                    <td style={{ ...styles.td, color: '#f97316' }}>
-                                        {categories.find(c => c.id === item.categoryId)?.name || `Category ${item.categoryId}`}
+                                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                                    <td className="px-6 py-5 text-sm text-gray-400 font-mono">{index + 1}</td>
+                                    <td className="px-6 py-5 text-sm font-bold text-gray-900">{item.name}</td>
+                                    <td className="px-6 py-5">
+                                        <span className="text-sm px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium border border-blue-100">
+                                            {categories.find(c => c.id === item.categoryId)?.name || `Category ${item.categoryId}`}
+                                        </span>
                                     </td>
-                                    <td style={{ ...styles.td, color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
-                                        {item.description?.slice(0, 60)}{item.description?.length > 60 ? '...' : ''}
+                                    <td className="px-6 py-5 text-sm text-gray-500 max-w-xs truncate">
+                                        {item.description}
                                     </td>
-                                    <td style={{ ...styles.td, color: '#f97316', fontWeight: '700' }}>
+                                    <td className="px-6 py-5 text-sm font-bold text-gray-900">
                                         Rs. {item.price}
                                     </td>
-                                    <td style={styles.td}>
-                                        <span style={{
-                                            ...styles.badge,
-                                            background: item.available
-                                                ? 'rgba(34,197,94,0.15)'
-                                                : 'rgba(107,114,128,0.2)',
-                                            color: item.available ? '#86efac' : '#9ca3af',
-                                            border: `1px solid ${item.available ? 'rgba(34,197,94,0.3)' : 'rgba(107,114,128,0.3)'}`,
-                                        }}>
+                                    <td className="px-6 py-5">
+                                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-bold border ${
+                                            item.available 
+                                                ? 'bg-green-50 text-green-700 border-green-100' 
+                                                : 'bg-gray-100 text-gray-600 border-gray-200'
+                                        }`}>
                                             {item.available ? 'Available' : 'Unavailable'}
                                         </span>
                                     </td>
-                                    <td style={styles.td}>
-                                        <div style={styles.actions}>
+                                    <td className="px-6 py-5 text-right">
+                                        <div className="flex justify-end gap-2">
                                             <button
-                                                style={styles.editBtn}
+                                                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-semibold transition"
                                                 onClick={() => navigate(`/admin/menu/edit/${item.id}`)}
                                             >
-                                                ✏️ Edit
+                                                Edit
                                             </button>
                                             <button
-                                                style={item.available ? styles.warnBtn : styles.successBtn}
+                                                className={`px-3 py-1 rounded text-sm font-semibold transition ${
+                                                    item.available 
+                                                        ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200' 
+                                                        : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'
+                                                }`}
                                                 onClick={() => handleToggle(item.id, item.available)}
                                             >
-                                                {item.available ? '🔒 Disable' : '✅ Enable'}
+                                                {item.available ? 'Disable' : 'Enable'}
                                             </button>
                                             <button
-                                                style={styles.deleteBtn}
+                                                className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-semibold border border-red-200 transition"
                                                 onClick={() => handleDelete(item.id)}
                                             >
-                                                🗑️ Delete
+                                                Delete
                                             </button>
                                         </div>
                                     </td>
@@ -172,146 +168,3 @@ export default function AdminMenuList() {
         </div>
     );
 }
-
-const btnBase = {
-    border: 'none',
-    borderRadius: '8px',
-    padding: '6px 12px',
-    fontSize: '12px',
-    fontWeight: '600',
-    cursor: 'pointer',
-    transition: 'opacity 0.2s',
-};
-
-const styles = {
-    page: {
-        padding: '32px',
-        fontFamily: "'Inter', sans-serif",
-        maxWidth: '1200px',
-        margin: '0 auto',
-    },
-    header: {
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '32px',
-        flexWrap: 'wrap',
-        gap: '16px',
-    },
-    pageTitle: {
-        color: '#ffffff',
-        fontSize: '28px',
-        fontWeight: '700',
-        margin: 0,
-    },
-    pageSubtitle: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: '14px',
-        margin: '4px 0 0 0',
-    },
-    addBtn: {
-        background: 'linear-gradient(135deg, #f97316, #ea580c)',
-        color: '#fff',
-        border: 'none',
-        borderRadius: '10px',
-        padding: '12px 24px',
-        fontSize: '14px',
-        fontWeight: '700',
-        cursor: 'pointer',
-    },
-    toast: {
-        padding: '12px 16px',
-        borderRadius: '10px',
-        border: '1px solid',
-        fontSize: '14px',
-        marginBottom: '24px',
-    },
-    center: {
-        textAlign: 'center',
-        padding: '60px 0',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-    },
-    spinner: {
-        width: '40px',
-        height: '40px',
-        border: '3px solid rgba(255,255,255,0.1)',
-        borderTop: '3px solid #f97316',
-        borderRadius: '50%',
-        animation: 'spin 0.8s linear infinite',
-    },
-    loadingText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: '14px',
-    },
-    emptyText: {
-        color: 'rgba(255,255,255,0.4)',
-        fontSize: '16px',
-    },
-    tableWrap: {
-        overflowX: 'auto',
-        borderRadius: '16px',
-        border: '1px solid rgba(255,255,255,0.08)',
-    },
-    table: {
-        width: '100%',
-        borderCollapse: 'collapse',
-        background: 'rgba(255,255,255,0.03)',
-    },
-    thead: {
-        background: 'rgba(255,255,255,0.06)',
-    },
-    th: {
-        padding: '14px 16px',
-        color: 'rgba(255,255,255,0.5)',
-        fontSize: '12px',
-        fontWeight: '600',
-        textTransform: 'uppercase',
-        letterSpacing: '0.5px',
-        textAlign: 'left',
-        borderBottom: '1px solid rgba(255,255,255,0.08)',
-    },
-    tr: {
-        borderBottom: '1px solid rgba(255,255,255,0.05)',
-    },
-    td: {
-        padding: '14px 16px',
-        color: 'rgba(255,255,255,0.7)',
-        fontSize: '14px',
-        verticalAlign: 'middle',
-    },
-    badge: {
-        display: 'inline-block',
-        padding: '4px 10px',
-        borderRadius: '20px',
-        fontSize: '12px',
-        fontWeight: '600',
-    },
-    actions: {
-        display: 'flex',
-        gap: '8px',
-        flexWrap: 'wrap',
-    },
-    editBtn: {
-        ...btnBase,
-        background: 'rgba(99, 102, 241, 0.2)',
-        color: '#a5b4fc',
-    },
-    warnBtn: {
-        ...btnBase,
-        background: 'rgba(234, 179, 8, 0.15)',
-        color: '#fde047',
-    },
-    successBtn: {
-        ...btnBase,
-        background: 'rgba(34, 197, 94, 0.15)',
-        color: '#86efac',
-    },
-    deleteBtn: {
-        ...btnBase,
-        background: 'rgba(239, 68, 68, 0.15)',
-        color: '#fca5a5',
-    },
-};

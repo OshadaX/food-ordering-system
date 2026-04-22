@@ -13,6 +13,35 @@ public class CustomerService {
 
     public CustomerService() {
         this.customerRepository = new CustomerRepository();
+        ensureAdminExists();
+    }
+
+    private void ensureAdminExists() {
+        try {
+            String adminEmail = "admin@gmail.com";
+            Customer admin = customerRepository.findByEmail(adminEmail);
+            if (admin == null) {
+                admin = new Customer();
+                admin.setName("System Admin");
+                admin.setEmail(adminEmail);
+                admin.setPassword(BCrypt.hashpw("123456", BCrypt.gensalt()));
+                admin.setPhone("0000000000");
+                admin.setRole("admin");
+                customerRepository.save(admin);
+            } else if (!"admin".equals(admin.getRole())) {
+                // If user exists but is not admin, update role
+                try (java.sql.Connection conn = com.foodorder.util.DBConnection.getInstance().getConnection();
+                     java.sql.PreparedStatement stmt = conn.prepareStatement(
+                         "UPDATE customers SET role = 'admin' WHERE email = ?")) {
+                    stmt.setString(1, adminEmail);
+                    stmt.executeUpdate();
+                }
+            }
+        } catch (SQLException e) {
+            // Ignore initialization errors here to avoid crashing the service
+            // but log them if possible
+            System.err.println("Failed to ensure admin existence: " + e.getMessage());
+        }
     }
 
     public String[] register(Customer customer) {

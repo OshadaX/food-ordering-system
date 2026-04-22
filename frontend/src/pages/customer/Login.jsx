@@ -38,7 +38,7 @@ export default function Login() {
                     email: data.email,
                     role: data.role || 'customer',
                 }
-                login(userData)
+                login(userData, data.token)
 
                 // Redirect based on role
                 if (userData.role === 'admin') {

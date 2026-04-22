@@ -40,6 +40,12 @@ export default function MenuList() {
         setTimeout(() => setAddedId(null), 1500);
     };
 
+    const getImageUrl = (url) => {
+        if (!url) return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop`;
+        if (url.startsWith('http')) return url;
+        return `https://images.unsplash.com/${url}?q=80&w=600&auto=format&fit=crop`;
+    };
+
     return (
         <main className="pt-24 pb-32">
             {/* Hero Section */}
@@ -163,7 +169,7 @@ export default function MenuList() {
                             <div key={item.id} className="group bg-surface-container-high rounded-3xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
                                 <div className="h-48 relative bg-surface-container overflow-hidden">
                                     <img 
-                                        src={item.imageUrl || `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop`}
+                                        src={getImageUrl(item.imageUrl)}
                                         alt={item.name}
                                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
                                     />

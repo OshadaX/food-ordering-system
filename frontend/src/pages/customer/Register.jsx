@@ -46,7 +46,7 @@ export default function Register() {
                     email: data.email,
                     role: data.role || 'customer',
                 }
-                login(userData)
+                login(userData, data.token)
 
                 // New customers always go to the customer menu
                 navigate('/menu')

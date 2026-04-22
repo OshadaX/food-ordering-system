@@ -106,7 +106,7 @@ export default function MenuForm() {
 
     if (loading && isEditMode) {
         return (
-            <div className="container mt-4 text-center">
+            <div className="container pt-32 text-center">
                 <div className="spinner-border text-primary" />
                 <p className="mt-2">Loading item details...</p>
             </div>
@@ -114,7 +114,7 @@ export default function MenuForm() {
     }
 
     return (
-        <div className="container mt-4 mb-5">
+        <div className="container pt-32 mb-5">
             <div className="row justify-content-center">
                 <div className="col-md-8">
                     <div className="card shadow-sm">

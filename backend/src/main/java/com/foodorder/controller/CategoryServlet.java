@@ -96,19 +96,37 @@ public class CategoryServlet extends HttpServlet {
         String action = request.getPathInfo();
         if (action == null) action = "";
         switch (action) {
-            case "/add":
-                addCategory(request, response);
-                break;
-            default:
-                sendResponse(response, 404, "error", "Endpoint not found");
+            case "/add":    addCategory(request, response);    break;
+            case "/update": updateCategory(request, response); break;
+            case "/delete": deleteCategory(request, response); break;
+            default:        sendResponse(response, 404, "error", "Endpoint not found");
         }
     }
 
     private void addCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
         if (!isAdmin(request, response)) return;
-
         Category category = new Gson().fromJson(readBody(request), Category.class);
         String[] result = categoryService.addCategory(category);
         sendResponse(response, result[0].equals("success") ? 201 : 400, result[0], result[1]);
     }
+
+    private void updateCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (!isAdmin(request, response)) return;
+        Category category = new Gson().fromJson(readBody(request), Category.class);
+        String[] result = categoryService.updateCategory(category);
+        sendResponse(response, result[0].equals("success") ? 200 : 400, result[0], result[1]);
+    }
+
+    private void deleteCategory(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        if (!isAdmin(request, response)) return;
+        String idParam = request.getParameter("id");
+        if (idParam == null) { sendResponse(response, 400, "error", "Category ID is required"); return; }
+        try {
+            String[] result = categoryService.deleteCategory(Integer.parseInt(idParam));
+            sendResponse(response, result[0].equals("success") ? 200 : 404, result[0], result[1]);
+        } catch (NumberFormatException e) {
+            sendResponse(response, 400, "error", "Invalid category ID");
+        }
+    }
 }
+
