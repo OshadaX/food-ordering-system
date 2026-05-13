@@ -43,6 +43,8 @@ export default function Login() {
                 // Redirect based on role
                 if (userData.role === 'admin') {
                     navigate('/admin/menu')
+                } else if (userData.role === 'kitchen') {
+                    navigate('/admin/orders')
                 } else {
                     navigate('/menu')
                 }

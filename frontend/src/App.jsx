@@ -6,6 +6,7 @@ import MainLayout from './components/layout/MainLayout'
 import AdminLayout from './components/layout/AdminLayout'
 import PrivateRoute from './components/common/PrivateRoute'
 import AdminRoute from './components/common/AdminRoute'
+import StaffRoute from './components/common/StaffRoute'
 
 // Auth pages
 import Register from './pages/customer/Register'
@@ -18,6 +19,7 @@ import MenuList from './pages/menu/MenuList'
 // Admin menu
 import AdminMenuList from './pages/admin/AdminMenuList'
 import AdminCategoryList from './pages/admin/AdminCategoryList'
+import AdminOrders from './pages/admin/AdminOrders'
 import MenuForm from './pages/menu/MenuForm'
 
 // Customer pages
@@ -69,6 +71,13 @@ export default function App() {
                 <Route path="/admin/menu/edit/:id" element={<MenuForm />} />
                 <Route path="/delivery" element={<DeliveryList />} />
                 <Route path="/delivery/assign" element={<DeliveryAssign />} />
+              </Route>
+            </Route>
+
+            {/* Admin + Kitchen Staff protected routes */}
+            <Route element={<StaffRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/admin/orders" element={<AdminOrders />} />
               </Route>
             </Route>
 

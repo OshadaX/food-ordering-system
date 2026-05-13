@@ -11,6 +11,9 @@ public class DatabaseSeeder {
         
         // Ensure Admin
         ensureUserExists(repo, "System Admin", "admin@gmail.com", "123456", "admin");
+
+        // Ensure kitchen staff
+        ensureUserExists(repo, "Kitchen Staff", "kitchen@gmail.com", "123456", "kitchen");
         
         // Ensure regular customer
         ensureUserExists(repo, "Test Customer", "custmer@gmail.com", "1234", "customer");

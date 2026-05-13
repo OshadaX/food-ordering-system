@@ -9,6 +9,8 @@ export default function Navbar() {
     const location = useLocation()
 
     const isAdmin = user?.role === 'admin'
+    const isKitchen = user?.role === 'kitchen'
+    const isStaff = isAdmin || isKitchen
     const isCustomer = user?.role === 'customer'
 
     const handleLogout = () => {
@@ -19,10 +21,10 @@ export default function Navbar() {
     const isActive = (path) => location.pathname === path
 
     return (
-        <nav className="fixed top-0 w-full z-50 glass-nav shadow-[0_40px_60px_rgba(229,226,221,0.06)]">
+        <nav className="fixed top-0 w-full z-50 bg-[#0f172a] border-b border-white/5 shadow-lg">
             <div className="flex justify-between items-center px-8 py-4 w-full max-w-none font-['Inter'] tracking-tight antialiased">
                 {/* Brand Logo */}
-                <Link to="/menu" className="text-2xl font-black text-[#e5e2e1] tracking-tighter hover:scale-105 transition-transform flex items-center gap-2">
+                <Link to="/menu" className="text-2xl font-black text-[#e5e2e1] tracking-tighter flex items-center gap-2">
                     <span className="text-[#FF8C00]">🔥</span> FoodOrder 
                 </Link>
 
@@ -30,7 +32,7 @@ export default function Navbar() {
                 <div className="hidden md:flex items-center space-x-8">
                     <Link 
                         to="/menu" 
-                        className={`${isActive('/menu') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                        className={`${isActive('/menu') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80'}`}
                     >
                         Menu
                     </Link>
@@ -40,25 +42,30 @@ export default function Navbar() {
                         <>
                             <Link 
                                 to="/tracking" 
-                                className={`${isActive('/tracking') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                                className={`${isActive('/tracking') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80'}`}
                             >
                                 Track Order
                             </Link>
                             <Link 
                                 to="/payment/history" 
-                                className={`${isActive('/payment/history') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d]'} transition-all duration-300 active:scale-95 transform`}
+                                className={`${isActive('/payment/history') ? 'text-[#FF8C00] border-b-2 border-[#FF8C00] font-bold pb-1' : 'text-[#e5e2e1] font-medium opacity-80'}`}
                             >
                                 My Orders
                             </Link>
                         </>
                     )}
 
-                    {/* Admin-only links */}
-                    {isAdmin && (
+                    {/* Staff links */}
+                    {isStaff && (
                         <>
-                            <Link to="/admin/menu" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Admin Menu</Link>
-                            <Link to="/admin/categories" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Categories</Link>
-                            <Link to="/delivery" className="text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d] transition-all">Delivery</Link>
+                            <Link to="/admin/orders" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Orders</Link>
+                            {isAdmin && (
+                                <>
+                                    <Link to="/admin/menu" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Admin Menu</Link>
+                                    <Link to="/admin/categories" className="text-[#f97316] text-sm font-bold bg-orange-500/10 border border-orange-500/20 px-3 py-1.5 rounded-lg">Categories</Link>
+                                    <Link to="/delivery" className="text-[#e5e2e1] font-medium opacity-80 hover:opacity-100 hover:text-[#ffb77d] transition-all">Delivery</Link>
+                                </>
+                            )}
                         </>
                     )}
                 </div>
@@ -81,11 +88,12 @@ export default function Navbar() {
                         <>
                             <div className="hidden sm:flex items-center space-x-3 border-l border-outline-variant/30 pl-6">
                                 <div className="w-8 h-8 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-primary font-bold">
-                                    {isAdmin ? '🛡️' : 'A'}
+                                    {isAdmin ? '🛡️' : isKitchen ? 'K' : 'A'}
                                 </div>
                                 <div className="flex flex-col">
                                     <span className="text-on-surface font-medium text-sm leading-tight">{user.name}</span>
                                     {isAdmin && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Admin</span>}
+                                    {isKitchen && <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Kitchen Staff</span>}
                                 </div>
                             </div>
 

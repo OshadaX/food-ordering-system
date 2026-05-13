@@ -4,7 +4,7 @@ CREATE TABLE customers (
     email        VARCHAR(100)        NOT NULL UNIQUE,
     password     VARCHAR(255)        NOT NULL,
     phone        VARCHAR(15),
-    role         ENUM('customer','admin') DEFAULT 'customer',
+    role         ENUM('customer','kitchen','admin') DEFAULT 'customer',
     created_at   TIMESTAMP           DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -52,6 +52,7 @@ CREATE TABLE orders (
                      'Delivered',
                      'Cancelled'
                    )                  DEFAULT 'Received',
+    archived       BOOLEAN             DEFAULT FALSE,
     created_at     TIMESTAMP          DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     FOREIGN KEY (address_id)  REFERENCES addresses(id) ON DELETE SET NULL
@@ -112,6 +113,17 @@ CREATE TABLE order_status_log (
     note         VARCHAR(255),
     updated_at   TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE
+);
+
+CREATE TABLE order_notifications (
+    id           INT AUTO_INCREMENT PRIMARY KEY,
+    order_id     INT                 NOT NULL,
+    customer_id  INT                 NOT NULL,
+    message      VARCHAR(255)        NOT NULL,
+    is_read      BOOLEAN             DEFAULT FALSE,
+    created_at   TIMESTAMP           DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
+    FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE
 );
 
 CREATE TABLE delivery_persons (

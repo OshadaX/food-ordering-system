@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllItems } from '../../services/menuService';
 import { getAllCategories } from '../../services/categoryService';
@@ -32,7 +32,7 @@ export default function MenuList() {
         setLoading(false);
     };
 
-    const handleAddToCart = (item) => {
+    const handleAddToCart = useCallback((item) => {
         if (!user) {
             navigate('/login');
             return;
@@ -40,7 +40,7 @@ export default function MenuList() {
         addToCart(item);
         setAddedId(item.id);
         setTimeout(() => setAddedId(null), 1500);
-    };
+    }, [user, addToCart, navigate]);
 
     const getImageUrl = (url) => {
         if (!url) return `https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop`;
@@ -74,22 +74,22 @@ export default function MenuList() {
                             Experience fine dining at your doorstep. Curated menus from the city's finest kitchens, handled with sommelier-level care.
                         </p>
                         <div className="flex flex-wrap gap-4">
-                            <button onClick={() => document.getElementById('full-menu').scrollIntoView({ behavior: 'smooth' })} className="px-8 py-4 bg-gradient-to-tr from-[#ffb77d] to-[#FF8C00] text-[#131313] rounded-xl font-bold text-lg shadow-lg shadow-primary-container/20 active:scale-95 transition-all">
+                            <button onClick={() => document.getElementById('full-menu').scrollIntoView()} className="px-8 py-4 bg-gradient-to-tr from-[#ffb77d] to-[#FF8C00] text-[#131313] rounded-xl font-bold text-lg shadow-lg shadow-primary-container/20 active:scale-95">
                                 Order Now
                             </button>
                             {!user && (
-                                <Link to="/register" className="px-8 py-4 flex items-center bg-surface-container-high/40 backdrop-blur-xl text-on-surface rounded-xl font-bold text-lg active:scale-95 transition-all border border-outline-variant/10 hover:bg-surface-container-high transition-colors">
+                                <Link to="/register" className="px-8 py-4 flex items-center bg-surface-container-high text-on-surface rounded-xl font-bold text-lg active:scale-95 border border-outline-variant/10">
                                     Join Us
                                 </Link>
                             )}
                         </div>
                     </div>
                     <div className="relative">
-                        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-black/50 transform lg:rotate-3 hover:rotate-0 transition-transform duration-700">
-                            <img className="w-full h-[600px] object-cover" alt="Hero presentation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCetZ6P_1wOx7Z3gvxdg6GUh2ShWr5yAA0XDGZXX0mGWcdLorX1wfcgvlt_tFO5YrW1BxqakFtQskSFZcpf7BrzJw5R-SpWe3bHnXGhMjM-fhoFvJBprEvlWG2b-enzSlpEqI5IxSMRHrSbYN1f84yWrnhh3o9rWEP02YjEnvm87mNMrXLzxXwgDmcJz5GkCn3TTcytCeLPMgFZi3bWHwO9xBUHooEGwSXs2uUWaDa1ou62KbTC6kSAuR7awKlGRhNShF5C5mLysMM" />
+                        <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-black/50">
+                            <img className="w-full h-[600px] object-cover" alt="Hero presentation" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCetZ6P_1wOx7Z3gvxdg6GUh2ShWr5yAA0XDGZXX0mGWcdLorX1wfcgvlt_tFO5YrW1BxqakFtQskSFZcpf7BrzJw5R-SpWe3bHnXGhMjM-fhoFvJBprEvlWG2b-enzSlpEqI5IxSMRHrSbYN1f84yWrnhh3o9rWEP02YjEnvm87mNMrXLzxXwgDmcJz5GkCn3TTcytCeLPMgFZi3bWHwO9xBUHooEGwSXs2uUWaDa1ou62KbTC6kSAuR7awKlGRhNShF5C5mLysMM" loading="lazy" />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
                             {/* Gastronomy Overlay Component */}
-                            <div className="absolute bottom-6 left-6 right-6 p-6 rounded-2xl bg-surface-variant/30 backdrop-blur-xl border border-white/10">
+                            <div className="absolute bottom-6 left-6 right-6 p-6 rounded-2xl bg-surface-variant/60 border border-white/10">
                                 <div className="flex justify-between items-end">
                                     <div>
                                         <p className="text-primary-fixed-dim text-xs font-black uppercase tracking-widest mb-1">Chef's Choice</p>
@@ -97,16 +97,13 @@ export default function MenuList() {
                                     </div>
                                     <div className="text-right">
                                         <span className="block text-3xl font-black text-on-surface">$42.00</span>
-                                        <button className="mt-2 flex items-center text-primary font-bold text-sm hover:scale-105 transition-transform" onClick={() => document.getElementById('full-menu').scrollIntoView()}>
+                                        <button className="mt-2 flex items-center text-primary font-bold text-sm" onClick={() => document.getElementById('full-menu').scrollIntoView()}>
                                             Order <span className="material-symbols-outlined ml-1 text-sm">arrow_downward</span>
                                         </button>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        {/* Decorative element */}
-                        <div className="absolute -top-12 -right-12 w-48 h-48 bg-primary/10 rounded-full blur-3xl -z-10"></div>
-                        <div className="absolute -bottom-12 -left-12 w-64 h-64 bg-primary-container/10 rounded-full blur-3xl -z-10"></div>
                     </div>
                 </div>
             </section>
@@ -142,9 +139,9 @@ export default function MenuList() {
                         const imageUrl = matchingKey ? categoryImages[matchingKey] : categoryImages["default"];
 
                         return (
-                            <div key={category.id} className={`${bentoClasses[index]} relative rounded-3xl overflow-hidden group cursor-pointer`} onClick={() => { setSelectedCategory(category.id.toString()); document.getElementById('full-menu').scrollIntoView({ behavior: 'smooth' }); }}>
-                                <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={category.name} src={imageUrl} />
-                                <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
+                            <div key={category.id} className={`${bentoClasses[index]} relative rounded-3xl overflow-hidden cursor-pointer`} onClick={() => { setSelectedCategory(category.id.toString()); document.getElementById('full-menu').scrollIntoView({ behavior: 'smooth' }); }}>
+                                <img className="w-full h-full object-cover" alt={category.name} src={imageUrl} loading="lazy" />
+                                <div className="absolute inset-0 bg-black/40"></div>
                                 <div className="absolute bottom-8 left-8">
                                     <h3 className={`${index === 0 ? 'text-3xl' : 'text-xl'} font-black text-white`}>{category.name}</h3>
                                     {index === 0 && <p className="text-white/80 font-medium">Explore our collection</p>}
@@ -223,14 +220,15 @@ export default function MenuList() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
                         {filteredItems.map(item => (
-                            <div key={item.id} className="group bg-surface-container-high rounded-3xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-300 shadow-xl shadow-black/20 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
+                            <div key={item.id} className="bg-surface-container-high rounded-3xl overflow-hidden border border-white/5 shadow-xl shadow-black/20 flex flex-col">
                                 <div className="h-48 relative bg-surface-container overflow-hidden">
                                     <img 
                                         src={getImageUrl(item.imageUrl)}
                                         alt={item.name}
-                                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 opacity-80 group-hover:opacity-100"
+                                        className="w-full h-full object-cover"
+                                        loading="lazy"
                                     />
-                                    <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md px-3 py-1 rounded-full text-primary font-bold text-sm border border-white/10">
+                                    <div className="absolute top-4 right-4 bg-black/70 px-3 py-1 rounded-full text-primary font-bold text-sm border border-white/10">
                                         Rs. {item.price}
                                     </div>
                                 </div>
@@ -242,10 +240,10 @@ export default function MenuList() {
                                     
                                     <button 
                                         onClick={() => handleAddToCart(item)}
-                                        className={`w-full py-3 rounded-xl font-bold text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                                        className={`w-full py-3 rounded-xl font-bold text-sm flex items-center justify-center gap-2 ${
                                             addedId === item.id 
                                             ? 'bg-green-500/20 text-green-500 border border-green-500/30'
-                                            : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-on-primary'
+                                            : 'bg-primary/10 text-primary border border-primary/20'
                                         }`}
                                     >
                                         <span className="material-symbols-outlined text-[18px]">
