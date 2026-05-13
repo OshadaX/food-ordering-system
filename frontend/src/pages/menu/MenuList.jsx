@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { getAllItems } from '../../services/menuService';
 import { getAllCategories } from '../../services/categoryService';
@@ -10,6 +10,8 @@ export default function MenuList() {
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [addedId, setAddedId] = useState(null);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [selectedCategory, setSelectedCategory] = useState('all');
 
     const { user } = useAuth();
     const { addToCart } = useCart();
@@ -45,6 +47,15 @@ export default function MenuList() {
         if (url.startsWith('http')) return url;
         return `https://images.unsplash.com/${url}?q=80&w=600&auto=format&fit=crop`;
     };
+
+    const filteredItems = useMemo(() => {
+        return items.filter(item => {
+            const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                                 (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()));
+            const matchesCategory = selectedCategory === 'all' || item.categoryId === parseInt(selectedCategory);
+            return matchesSearch && matchesCategory;
+        });
+    }, [items, searchQuery, selectedCategory]);
 
     return (
         <main className="pt-24 pb-32">
@@ -110,7 +121,6 @@ export default function MenuList() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-[600px]">
                     {categories.slice(0, 4).map((category, index) => {
-                        // Dynamically allocate bento box sizes exactly as they were structurally designed
                         const bentoClasses = [
                             "md:col-span-2 md:row-span-2",
                             "md:col-span-1 md:row-span-1",
@@ -118,7 +128,6 @@ export default function MenuList() {
                             "md:col-span-1 md:row-span-1"
                         ];
 
-                        // Match high quality generic images to our dynamic categories
                         const categoryImages = {
                             "burgers": "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?q=80&w=1899&auto=format&fit=crop",
                             "desserts": "https://lh3.googleusercontent.com/aida-public/AB6AXuDK__CBYYkcK9Sx2heyv7KRIc5zafsEsOZv1IkZPyGlTO-DR9Nz8Dga-WrBluf-tBHophIZlX29yyTMVIpI_zIZW8NvWSfFgeH4cnv_ORXdOYQu4mKrHwn2_WKuc5SiiUEq6U5OW7wzwOIML2i0LIMOUvHaTNfgV9dlDdoGgEpxZisyE8cgMudlrIj2H1Vs-VyLs0ifP-cRao6HXDbhBA3b2AnZHQXh3GBgyr1o77VpUfidj9dnX6BWyw-W5Xh3ukwrzOfl2MkoEN4",
@@ -133,7 +142,7 @@ export default function MenuList() {
                         const imageUrl = matchingKey ? categoryImages[matchingKey] : categoryImages["default"];
 
                         return (
-                            <div key={category.id} className={`${bentoClasses[index]} relative rounded-3xl overflow-hidden group cursor-pointer`} onClick={() => document.getElementById('full-menu').scrollIntoView()}>
+                            <div key={category.id} className={`${bentoClasses[index]} relative rounded-3xl overflow-hidden group cursor-pointer`} onClick={() => { setSelectedCategory(category.id.toString()); document.getElementById('full-menu').scrollIntoView({ behavior: 'smooth' }); }}>
                                 <img className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt={category.name} src={imageUrl} />
                                 <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors"></div>
                                 <div className="absolute bottom-8 left-8">
@@ -148,9 +157,50 @@ export default function MenuList() {
 
             {/* Dynamic Full Menu */}
             <section id="full-menu" className="px-8 lg:px-16 mb-24 min-h-[500px]">
-                <div className="mb-12">
-                    <h2 className="text-4xl font-black tracking-tighter text-on-surface mb-2">Our Full Menu</h2>
-                    <p className="text-on-surface-variant opacity-60">Explore everything our kitchens have to offer.</p>
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 gap-8">
+                    <div className="max-w-xl">
+                        <h2 className="text-4xl font-black tracking-tighter text-on-surface mb-2">Our Full Menu</h2>
+                        <p className="text-on-surface-variant opacity-60 mb-8">Explore everything our kitchens have to offer.</p>
+                        
+                        {/* Search Bar */}
+                        <div className="relative group">
+                            <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors">search</span>
+                            <input 
+                                type="text" 
+                                placeholder="Search for a dish..." 
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="w-full bg-surface-container-high border border-white/5 rounded-2xl py-4 pl-12 pr-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/30 transition-all placeholder:text-on-surface-variant/30 font-medium"
+                            />
+                        </div>
+                    </div>
+
+                    {/* Category Filter Chips */}
+                    <div className="flex flex-wrap gap-2 lg:mb-1">
+                        <button 
+                            onClick={() => setSelectedCategory('all')}
+                            className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${
+                                selectedCategory === 'all' 
+                                ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' 
+                                : 'bg-surface-container-high text-on-surface-variant border-white/5 hover:bg-surface-variant'
+                            }`}
+                        >
+                            All Dishes
+                        </button>
+                        {categories.map(cat => (
+                            <button 
+                                key={cat.id}
+                                onClick={() => setSelectedCategory(cat.id.toString())}
+                                className={`px-6 py-3 rounded-xl font-bold text-sm transition-all border ${
+                                    selectedCategory === cat.id.toString() 
+                                    ? 'bg-primary text-on-primary border-primary shadow-lg shadow-primary/20' 
+                                    : 'bg-surface-container-high text-on-surface-variant border-white/5 hover:bg-surface-variant'
+                                }`}
+                            >
+                                {cat.name}
+                            </button>
+                        ))}
+                    </div>
                 </div>
 
                 {loading ? (
@@ -158,15 +208,22 @@ export default function MenuList() {
                         <div className="w-12 h-12 border-4 border-white/10 border-t-primary rounded-full animate-spin mb-4"></div>
                         <p className="text-on-surface-variant">Curating the finest dishes...</p>
                     </div>
-                ) : items.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-20">
-                        <span className="text-6xl mb-4">🍽️</span>
-                        <p className="text-on-surface-variant text-lg">No items available right now.</p>
+                ) : filteredItems.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-20 animate-in fade-in zoom-in-95 duration-500">
+                        <span className="text-7xl mb-6">🍽️</span>
+                        <h3 className="text-2xl font-bold text-on-surface mb-2">No dishes found</h3>
+                        <p className="text-on-surface-variant opacity-60 max-w-xs text-center">We couldn't find any dishes matching your current search or category filter.</p>
+                        <button 
+                            onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}
+                            className="mt-8 text-primary font-bold hover:underline"
+                        >
+                            Clear all filters
+                        </button>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-                        {items.map(item => (
-                            <div key={item.id} className="group bg-surface-container-high rounded-3xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-300 shadow-xl shadow-black/20 flex flex-col">
+                        {filteredItems.map(item => (
+                            <div key={item.id} className="group bg-surface-container-high rounded-3xl overflow-hidden border border-white/5 hover:border-primary/30 transition-all duration-300 shadow-xl shadow-black/20 flex flex-col animate-in fade-in slide-in-from-bottom-4 duration-500">
                                 <div className="h-48 relative bg-surface-container overflow-hidden">
                                     <img 
                                         src={getImageUrl(item.imageUrl)}

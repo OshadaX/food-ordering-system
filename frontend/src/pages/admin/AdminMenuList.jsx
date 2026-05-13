@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllItems, deleteItem, toggleAvailability } from '../../services/menuService';
 import { getAllCategories } from '../../services/categoryService';
@@ -9,6 +9,7 @@ export default function AdminMenuList() {
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState('info');
+    const [searchQuery, setSearchQuery] = useState('');
 
     const navigate = useNavigate();
 
@@ -34,11 +35,11 @@ export default function AdminMenuList() {
     };
 
     const handleDelete = async (id) => {
-        const confirmed = window.confirm('Are you sure you want to delete this item?');
+        const confirmed = window.confirm('Are you sure you want to delete this masterpiece?');
         if (!confirmed) return;
         const result = await deleteItem(id);
         if (result.status === 'success') {
-            showMessage('Item deleted successfully', 'success');
+            showMessage('Item removed from collection', 'success');
             setItems(items.filter(item => item.id !== id));
         } else {
             showMessage(result.message, 'error');
@@ -57,114 +58,156 @@ export default function AdminMenuList() {
         }
     };
 
+    const filteredItems = useMemo(() => {
+        return items.filter(item => 
+            item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (categories.find(c => c.id === item.categoryId)?.name || '').toLowerCase().includes(searchQuery.toLowerCase())
+        );
+    }, [items, searchQuery, categories]);
+
     if (loading) return (
-        <div className="flex flex-col items-center justify-center p-20 text-gray-500">
-            <div className="w-10 h-10 border-4 border-gray-100 border-t-blue-600 rounded-full animate-spin mb-4"></div>
-            <p className="text-sm">Loading menu items...</p>
+        <div className="flex flex-col items-center justify-center min-h-screen pt-24">
+            <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
+            <p className="text-on-surface-variant font-medium">Synchronizing menu data...</p>
         </div>
     );
 
     return (
-        <div className="max-w-7xl mx-auto pt-32 px-8 pb-32 bg-white min-h-screen">
-            <div className="flex justify-between items-center mb-8 pb-6 border-b border-gray-100">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Menu Management</h1>
-                    <p className="text-gray-500 mt-1">Manage your restaurant's menu items</p>
+        <main className="pt-32 pb-24 px-8 lg:px-16 min-h-screen bg-surface">
+            <div className="max-w-7xl mx-auto">
+                {/* Header Section */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between mb-12 gap-6">
+                    <div>
+                        <h1 className="text-5xl font-black tracking-tighter text-on-surface mb-2">Menu Management</h1>
+                        <p className="text-on-surface-variant opacity-60">Curate and oversee your restaurant's culinary offerings.</p>
+                    </div>
+                    <button
+                        className="bg-primary text-on-primary px-8 py-4 rounded-2xl font-black shadow-lg shadow-primary/20 hover:bg-primary-container transition-all active:scale-95 flex items-center gap-2 self-start md:self-center"
+                        onClick={() => navigate('/admin/menu/add')}
+                    >
+                        <span className="material-symbols-outlined">add</span>
+                        New Dish
+                    </button>
                 </div>
-                <button
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-bold shadow-sm transition"
-                    onClick={() => navigate('/admin/menu/add')}
-                >
-                    + Add New Item
-                </button>
-            </div>
 
-            {message && (
-                <div className={`mb-6 p-4 rounded-lg border flex items-center gap-3 ${
-                    messageType === 'success' ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'
-                }`}>
-                    {messageType === 'success' ? '✅' : '⚠️'} {message}
+                {/* Status Message */}
+                {message && (
+                    <div className={`mb-8 p-4 rounded-2xl border flex items-center gap-3 animate-in fade-in slide-in-from-top-4 ${
+                        messageType === 'success' 
+                        ? 'bg-green-500/10 border-green-500/20 text-green-400' 
+                        : 'bg-red-500/10 border-red-500/20 text-red-400'
+                    }`}>
+                        <span className="material-symbols-outlined">{messageType === 'success' ? 'check_circle' : 'error'}</span>
+                        <p className="text-sm font-medium">{message}</p>
+                    </div>
+                )}
+
+                {/* Search & Filter Bar */}
+                <div className="mb-8 relative group">
+                    <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant/50 group-focus-within:text-primary transition-colors">search</span>
+                    <input 
+                        type="text" 
+                        placeholder="Filter by name or category..." 
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full bg-surface-container-low border border-white/5 rounded-2xl py-4 pl-12 pr-6 text-on-surface outline-none focus:ring-2 focus:ring-primary/30 transition-all placeholder:text-on-surface-variant/30 font-medium"
+                    />
                 </div>
-            )}
 
-            {!loading && items.length === 0 && (
-                <div className="text-center py-20 bg-gray-50 rounded-2xl border border-dashed border-gray-200">
-                    <span className="text-5xl mb-4 block">🍽️</span>
-                    <p className="text-gray-400">No menu items yet. Add your first item!</p>
-                </div>
-            )}
-
-            {!loading && items.length > 0 && (
-                <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-gray-50 border-b border-gray-200">
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">#</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Name</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Description</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Price</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
-                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody className="divide-y divide-gray-100">
-                            {items.map((item, index) => (
-                                <tr key={item.id} className="hover:bg-gray-50 transition-colors">
-                                    <td className="px-6 py-5 text-sm text-gray-400 font-mono">{index + 1}</td>
-                                    <td className="px-6 py-5 text-sm font-bold text-gray-900">{item.name}</td>
-                                    <td className="px-6 py-5">
-                                        <span className="text-sm px-2 py-1 bg-blue-50 text-blue-600 rounded font-medium border border-blue-100">
-                                            {categories.find(c => c.id === item.categoryId)?.name || `Category ${item.categoryId}`}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5 text-sm text-gray-500 max-w-xs truncate">
-                                        {item.description}
-                                    </td>
-                                    <td className="px-6 py-5 text-sm font-bold text-gray-900">
-                                        Rs. {item.price}
-                                    </td>
-                                    <td className="px-6 py-5">
-                                        <span className={`inline-flex px-2 py-1 rounded-full text-xs font-bold border ${
-                                            item.available 
-                                                ? 'bg-green-50 text-green-700 border-green-100' 
-                                                : 'bg-gray-100 text-gray-600 border-gray-200'
-                                        }`}>
-                                            {item.available ? 'Available' : 'Unavailable'}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-5 text-right">
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                className="px-3 py-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded text-sm font-semibold transition"
-                                                onClick={() => navigate(`/admin/menu/edit/${item.id}`)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className={`px-3 py-1 rounded text-sm font-semibold transition ${
-                                                    item.available 
-                                                        ? 'bg-yellow-50 hover:bg-yellow-100 text-yellow-700 border border-yellow-200' 
-                                                        : 'bg-green-50 hover:bg-green-100 text-green-700 border border-green-200'
-                                                }`}
-                                                onClick={() => handleToggle(item.id, item.available)}
-                                            >
-                                                {item.available ? 'Disable' : 'Enable'}
-                                            </button>
-                                            <button
-                                                className="px-3 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded text-sm font-semibold border border-red-200 transition"
-                                                onClick={() => handleDelete(item.id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </div>
-                                    </td>
+                {/* Menu Table */}
+                <div className="bg-surface-container-low rounded-[2rem] border border-white/5 shadow-2xl overflow-hidden">
+                    <div className="overflow-x-auto">
+                        <table className="w-full text-left border-collapse">
+                            <thead>
+                                <tr className="bg-white/5 border-b border-white/5">
+                                    <th className="px-8 py-6 text-xs font-black text-on-surface-variant uppercase tracking-widest">Dish</th>
+                                    <th className="px-8 py-6 text-xs font-black text-on-surface-variant uppercase tracking-widest">Category</th>
+                                    <th className="px-8 py-6 text-xs font-black text-on-surface-variant uppercase tracking-widest">Price</th>
+                                    <th className="px-8 py-6 text-xs font-black text-on-surface-variant uppercase tracking-widest">Status</th>
+                                    <th className="px-8 py-6 text-xs font-black text-on-surface-variant uppercase tracking-widest text-right">Actions</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody className="divide-y divide-white/5">
+                                {filteredItems.length === 0 ? (
+                                    <tr>
+                                        <td colSpan="5" className="px-8 py-20 text-center">
+                                            <span className="text-5xl mb-4 block">🔍</span>
+                                            <p className="text-on-surface-variant font-medium">No dishes found matching your search.</p>
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    filteredItems.map((item) => (
+                                        <tr key={item.id} className="hover:bg-white/5 transition-colors group">
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-4">
+                                                    <div className="w-12 h-12 rounded-xl bg-surface-container overflow-hidden border border-white/10 shrink-0">
+                                                        <img 
+                                                            src={item.imageUrl ? (item.imageUrl.startsWith('http') ? item.imageUrl : `https://images.unsplash.com/${item.imageUrl}?q=80&w=100&auto=format&fit=crop`) : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&h=100&fit=crop'} 
+                                                            alt="" 
+                                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <p className="font-bold text-on-surface leading-none mb-1">{item.name}</p>
+                                                        <p className="text-xs text-on-surface-variant opacity-60 line-clamp-1 max-w-[200px]">{item.description || 'No description provided.'}</p>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <span className="inline-flex px-3 py-1 bg-primary/10 text-primary rounded-full text-xs font-black border border-primary/20">
+                                                    {categories.find(c => c.id === item.categoryId)?.name || `Category ${item.categoryId}`}
+                                                </span>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <p className="font-bold text-on-surface font-mono">Rs. {item.price.toFixed(2)}</p>
+                                            </td>
+                                            <td className="px-8 py-6">
+                                                <div className="flex items-center gap-2">
+                                                    <div className={`w-2 h-2 rounded-full ${item.available ? 'bg-green-500 animate-pulse' : 'bg-on-surface-variant/30'}`}></div>
+                                                    <span className={`text-xs font-bold ${item.available ? 'text-green-500' : 'text-on-surface-variant/50'}`}>
+                                                        {item.available ? 'Live' : 'Hidden'}
+                                                    </span>
+                                                </div>
+                                            </td>
+                                            <td className="px-8 py-6 text-right">
+                                                <div className="flex justify-end gap-3">
+                                                    <button
+                                                        title="Edit Dish"
+                                                        className="w-10 h-10 flex items-center justify-center bg-surface-container-high hover:bg-primary/20 hover:text-primary text-on-surface-variant rounded-xl transition-all"
+                                                        onClick={() => navigate(`/admin/menu/edit/${item.id}`)}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">edit</span>
+                                                    </button>
+                                                    <button
+                                                        title={item.available ? 'Hide from Menu' : 'Show on Menu'}
+                                                        className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all ${
+                                                            item.available 
+                                                                ? 'bg-surface-container-high hover:bg-yellow-500/20 hover:text-yellow-500 text-on-surface-variant' 
+                                                                : 'bg-surface-container-high hover:bg-green-500/20 hover:text-green-500 text-on-surface-variant'
+                                                        }`}
+                                                        onClick={() => handleToggle(item.id, item.available)}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">
+                                                            {item.available ? 'visibility_off' : 'visibility'}
+                                                        </span>
+                                                    </button>
+                                                    <button
+                                                        title="Delete Dish"
+                                                        className="w-10 h-10 flex items-center justify-center bg-surface-container-high hover:bg-red-500/20 hover:text-red-500 text-on-surface-variant rounded-xl transition-all"
+                                                        onClick={() => handleDelete(item.id)}
+                                                    >
+                                                        <span className="material-symbols-outlined text-[18px]">delete</span>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
-            )}
-        </div>
+            </div>
+        </main>
     );
 }
